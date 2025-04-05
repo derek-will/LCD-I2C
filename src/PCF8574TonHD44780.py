@@ -64,8 +64,8 @@ class PCF8574TonHD44780:
     NUM_COLUMNS = const(40)
     NUM_ROWS = const(2)
     
-    LONG_DELAY_US = 2160 # 1520 us when frequency is 270 kHz, 2160 us when frequency is 190 kHz (worst-case)
-    SHORT_DELAY_US = 52 # 37 us when frequency is 270 kHz, 52 us when frequency is 190 kHz (worst-case)
+    _LONG_DELAY_US = const(2160) # 1520 us when frequency is 270 kHz, 2160 us when frequency is 190 kHz (worst-case)
+    _SHORT_DELAY_US = const(52) # 37 us when frequency is 270 kHz, 52 us when frequency is 190 kHz (worst-case)
         
     def __init__(self, i2c, i2c_addr, check_busy_flag):
         self.i2c = i2c
@@ -127,12 +127,12 @@ class PCF8574TonHD44780:
         
         # instruction execution time delay
         if write_dr:
-            self.execution_delay(self.SHORT_DELAY_US)
+            self.execution_delay(_SHORT_DELAY_US)
         else:
             if value == HD44780Constants.CLEAR_DISPLAY or value == HD44780Constants.RETURN_HOME:
-                self.execution_delay(self.LONG_DELAY_US)
+                self.execution_delay(_LONG_DELAY_US)
             else:
-                self.execution_delay(self.SHORT_DELAY_US)
+                self.execution_delay(_SHORT_DELAY_US)
 
     def read_4bit(self, read_dr):
         """Read value from Instruction Register (IR) when False or Data Register (DR) when True in 4-bit interface mode."""
@@ -178,7 +178,7 @@ class PCF8574TonHD44780:
         
         # instruction execution time delay
         if read_dr:
-            self.execution_delay(self.SHORT_DELAY_US)
+            self.execution_delay(_SHORT_DELAY_US)
 
         return data
 
