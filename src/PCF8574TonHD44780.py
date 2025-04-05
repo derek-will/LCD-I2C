@@ -61,8 +61,8 @@ class PCF8574TonHD44780:
     DB_HIGH = const(0xf0) # DB4-DB7 in high state
     
     # Set for 2-line display
-    NUM_COLUMNS = const(40)
-    NUM_ROWS = const(2)
+    _NUM_COLUMNS = const(40)
+    _NUM_ROWS = const(2)
     
     _LONG_DELAY_US = const(2160) # 1520 us when frequency is 270 kHz, 2160 us when frequency is 190 kHz (worst-case)
     _SHORT_DELAY_US = const(52) # 37 us when frequency is 270 kHz, 52 us when frequency is 190 kHz (worst-case)
@@ -257,10 +257,10 @@ class PCF8574TonHD44780:
     
     def set_cursor_pos(self, x, y):
         """Set cursor position (0-based index)"""
-        if x > NUM_COLUMNS - 1:
+        if x > _NUM_COLUMNS - 1:
             raise ValueError("X coordinate is outside the bounds of the number of columns")
         
-        if y > NUM_ROWS - 1:
+        if y > _NUM_ROWS - 1:
             raise ValueError("Y coordinate is outside the bound of the number of rows")
         
         self.cursor_pos_x = x
@@ -274,16 +274,16 @@ class PCF8574TonHD44780:
     def write_char(self, char):
         """Writes a single character to the display"""
         if char == '\n':
-            self.cursor_pos_x = NUM_COLUMNS
+            self.cursor_pos_x = _NUM_COLUMNS
         else:
             self.write_4bit(ord(char), True)
             self.cursor_pos_x += 1
         
-        if self.cursor_pos_x >= NUM_COLUMNS:
+        if self.cursor_pos_x >= _NUM_COLUMNS:
             self.cursor_pos_x = 0
             self.cursor_pos_y += 1
             
-        if self.cursor_pos_y >= NUM_ROWS:
+        if self.cursor_pos_y >= _NUM_ROWS:
             self.cursor_pos_y = 0
             
         self.set_cursor_pos(self.cursor_pos_x, self.cursor_pos_y)
