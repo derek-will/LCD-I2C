@@ -23,6 +23,10 @@ Using this library you can utilize any of the HD44780 LCD controller instruction
 
 In addition, turning the LCD backlight on and off is supported.
 
+### Example Project Layout
+
+![Pico connected to LCD over I2C bus via GPIO expander](res/LCD_I2C_Pico_Sketch.png)
+
 ### Example Code Snippet
 
 ```python
