@@ -53,12 +53,12 @@ class PCF8574TonHD44780:
     I2C-byte: DB7 DB6 DB5 DB4 BL E RW RS     
     """
     
-    RS = const(0x01) # register select: set for data register
-    RW = const(0x02) # read/write mode: set for read mode
-    E = const(0x04) # clock enable: set for on
-    BL = const(0x08) # backlight: set for on
+    _RS = const(0x01) # register select: set for data register
+    _RW = const(0x02) # read/write mode: set for read mode
+    _E = const(0x04) # clock enable: set for on
+    _BL = const(0x08) # backlight: set for on
     
-    DB_HIGH = const(0xf0) # DB4-DB7 in high state
+    _DB_HIGH = const(0xf0) # DB4-DB7 in high state
     
     # Set for 2-line display
     _NUM_COLUMNS = const(40)
@@ -90,7 +90,7 @@ class PCF8574TonHD44780:
         # This means it will execute new instructions on the falling edge of the clock signal.
         # Therefore we send the nibble twice to properly pulse the clock enable pin.
         # First with clock enable set high, then with clock enable set low.   
-        self.i2c.writeto(self.addr, bytes([upper_nibble | self.E]))
+        self.i2c.writeto(self.addr, bytes([upper_nibble | _E]))
         utime.sleep_us(1) # minimum enable pulse width time is 450 ns
         self.i2c.writeto(self.addr, bytes([upper_nibble]))
         # enable fall time is worst-case 25 ns, plus address hold time of at least 20 ns
@@ -102,7 +102,7 @@ class PCF8574TonHD44780:
         if not self.initialized:
             raise RuntimeError("Initialization function has not been called yet!")
         
-        req = (self.RS if write_dr else 0) | (self.BL if self.backlight_enable else 0)
+        req = (_RS if write_dr else 0) | (_BL if self.backlight_enable else 0)
         
         # RS, RW Setup (Address Setup Time): RW, RS pins must be settled before setting clock enable high.
         self.i2c.writeto(self.addr, bytes([req]))
@@ -110,7 +110,7 @@ class PCF8574TonHD44780:
         
         # We send each nibble twice to properly pulse the clock enable pin. See write_init function for more details.    
         upper_nibble = (value & 0xf0) | req
-        self.i2c.writeto(self.addr, bytes([upper_nibble | self.E]))
+        self.i2c.writeto(self.addr, bytes([upper_nibble | _E]))
         utime.sleep_us(1) # minimum enable pulse width time is 450 ns
         self.i2c.writeto(self.addr, bytes([upper_nibble]))
         # enable fall time is worst-case 25 ns, plus address hold time of at least 20 ns
@@ -118,7 +118,7 @@ class PCF8574TonHD44780:
         utime.sleep_us(1)
         
         lower_nibble = ((value & 0x0f) << 4) | req
-        self.i2c.writeto(self.addr, bytes([lower_nibble | self.E]))
+        self.i2c.writeto(self.addr, bytes([lower_nibble | _E]))
         utime.sleep_us(1) # minimum enable pulse width time is 450 ns
         self.i2c.writeto(self.addr, bytes([lower_nibble]))
         # enable fall time is worst-case 25 ns, plus address hold time of at least 20 ns
@@ -139,7 +139,7 @@ class PCF8574TonHD44780:
         if not self.initialized:
             raise RuntimeError("Initialization function has not been called yet!")
         
-        req = self.RW | (self.RS if read_dr else 0) | (self.BL if self.backlight_enable else 0)
+        req = _RW | (_RS if read_dr else 0) | (_BL if self.backlight_enable else 0)
         
         # RS, RW Setup (Address Setup Time): RW, RS pins must be settled before setting clock enable high.
         self.i2c.writeto(self.addr, bytes([req]))
@@ -149,7 +149,7 @@ class PCF8574TonHD44780:
         # Setting DB4-DB7 high is necessary in order to set P4-P7 high on the PCF8574.
         # In order to read a value from P4-P7, they must be set to high.
         # We set clock enable high to begin enable pulse. See write_init function for more details.
-        self.i2c.writeto(self.addr, bytes([req | self.E | self.DB_HIGH ]))
+        self.i2c.writeto(self.addr, bytes([req | _E | _DB_HIGH ]))
         utime.sleep_us(1) # minimum enable pulse width time is 450 ns
         
         # Read upper nibble while clock enable is set high and Data Bits are set high.
@@ -163,7 +163,7 @@ class PCF8574TonHD44780:
         utime.sleep_us(1)
         
         # Set clock enable high to begin enable pulse and set Data Bits 4-7 high. See above for rationale.
-        self.i2c.writeto(self.addr, bytes([req | self.E | self.DB_HIGH ]))
+        self.i2c.writeto(self.addr, bytes([req | _E | _DB_HIGH ]))
         utime.sleep_us(1) # minimum enable pulse width time is 450 ns
         
         # Read lower nibble while clock enable is set high and Data Bits are set high.
@@ -248,7 +248,7 @@ class PCF8574TonHD44780:
     def backlight_on(self):
         """Turns on backlight"""
         self.backlight_enable = True
-        self.i2c.writeto(self.addr, bytes([self.BL]))
+        self.i2c.writeto(self.addr, bytes([_BL]))
         
     def backlight_off(self):
         """Turns off backlight"""
